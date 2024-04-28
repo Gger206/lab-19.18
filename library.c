@@ -301,6 +301,63 @@ int getCountOfPalindrome(char *s) {
     return count;
 }
 
+int getWord(char **ptr, WordDescriptor *word) {
+    char *begin = *ptr;
+    while (**ptr != '\0' && **ptr == ' ') {
+        (*ptr)++;
+    }
+
+    word->begin = *ptr;
+
+    while (**ptr != '\0' && **ptr != ' ') {
+        (*ptr)++;
+    }
+
+    word->end = *ptr;
+
+    while (**ptr != '\0' && **ptr == ' ') {
+        (*ptr)++;
+    }
+
+    return *ptr != begin;
+}
+
+void interleaveStrings(char *s1, char *s2, char *result) {
+    WordDescriptor word1, word2;
+    int isW1Found, isW2Found;
+    char *beginSearch1 = s1, *beginSearch2 = s2;
+    char *resultPtr = result;
+
+    while ((isW1Found = getWord(&beginSearch1, &word1)),
+            (isW2Found = getWord(&beginSearch2, &word2)),
+            isW1Found || isW2Found) {
+
+        if (isW1Found) {
+            char *ptr = word1.begin;
+            while (ptr != word1.end) {
+                *resultPtr = *ptr;
+                resultPtr++;
+                ptr++;
+            }
+            *resultPtr = ' ';
+            resultPtr++;
+        }
+
+        if (isW2Found) {
+            char *ptr = word2.begin;
+            while (ptr != word2.end) {
+                *resultPtr = *ptr;
+                resultPtr++;
+                ptr++;
+            }
+            *resultPtr = ' ';
+            resultPtr++;
+        }
+    }
+
+    *resultPtr = '\0';
+}
+
 void test_removeNonLetters() {
     char s[] = "Vt 23  1  ";
     removeNonLetters(s);
@@ -346,6 +403,16 @@ void test_getCountOfPalindrome() {
     assert(getCountOfPalindrome(s1) == 2 && getCountOfPalindrome(s2) == 0 && getCountOfPalindrome(s3) == 4);
 }
 
+void test_interleaveStrings() {
+    char s1[] = "we will rock";
+    char s2[] = "one two three four five";
+    char result[MAX_STRING_SIZE];
+
+    interleaveStrings(s1, s2, result);
+
+    ASSERT_STRING("we one will two rock three four five ", result);
+}
+
 int main() {
     test_removeNonLetters();
     test_removeExtraSpaces();
@@ -353,6 +420,7 @@ int main() {
     test_replace();
     test_areWordsLexicographicallyOrdered();
     test_getCountOfPalindrome();
+    test_interleaveStrings();
 
     return 0;
 }
