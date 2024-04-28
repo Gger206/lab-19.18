@@ -263,6 +263,44 @@ void printReverseBagOfWords(char *s) {
     }
 }
 
+int isPalindrome(char *s, size_t length) {
+    char *begin = s;
+    char *end = s + length - 1;
+
+    while(begin < end) {
+        if(*begin != *end) {
+            return 0;
+        }
+        begin++;
+        end--;
+    }
+
+    return 1;
+}
+
+int getCountOfPalindrome(char *s) {
+    int count = 0;
+
+    char *ptr = s;
+    char *wordStart = ptr;
+
+    while(*ptr != '\0') {
+        if(*ptr == ',' || *ptr == ' ') {
+            if(isPalindrome(wordStart, ptr - wordStart)) {
+                count++;
+            }
+            wordStart = ptr + 1;
+        }
+        ptr++;
+    }
+
+    if(isPalindrome(wordStart, ptr - wordStart)) {
+        count++;
+    }
+
+    return count;
+}
+
 void test_removeNonLetters() {
     char s[] = "Vt 23  1  ";
     removeNonLetters(s);
@@ -300,12 +338,21 @@ void test_areWordsLexicographicallyOrdered() {
     assert(areWordsLexicographicallyOrdered(s1) == 1 && areWordsLexicographicallyOrdered(s2) == 0);
 }
 
+void test_getCountOfPalindrome() {
+    char s1[] = "dad DVD apple skin";
+    char s2[] = "test false apple skin";
+    char s3[] = "dad DVD  eye wow";
+
+    assert(getCountOfPalindrome(s1) == 2 && getCountOfPalindrome(s2) == 0 && getCountOfPalindrome(s3) == 4);
+}
+
 int main() {
     test_removeNonLetters();
     test_removeExtraSpaces();
     test_replaceDigitsWithSpaces();
     test_replace();
     test_areWordsLexicographicallyOrdered();
+    test_getCountOfPalindrome();
 
     return 0;
 }
