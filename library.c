@@ -2,6 +2,20 @@
 #define ASSERT_STRING(expected, got) assertString(expected, got, \
 __FILE__, __FUNCTION__, __LINE__)
 
+typedef struct WordDescriptor{
+    char *begin;
+    char *end;
+} WordDescriptor;
+
+char _stringBuffer[MAX_STRING_SIZE]; // Буфер для хранения строки
+
+void copyToBuffer(const char *source) {
+    copy(source, getEndOfString(source), _stringBuffer);
+}
+
+void copyFromBuffer(char *destination) {
+    copy(_stringBuffer, getEndOfString(_stringBuffer), destination);
+}
 
 void removeNonLetters(char *s) {
     char *endSource = getEndOfString(s);
@@ -53,20 +67,6 @@ void removeExtraSpaces(char *s) {
     *outputPtr = '\0';
 }
 
-void test_removeNonLetters() {
-    char s[] = "Vt 23  1  ";
-    removeNonLetters(s);
-    ASSERT_STRING("Vt231", s);
-}
-
-void test_removeExtraSpaces() {
-    char s[] = "    Hi     World";
-    removeExtraSpaces(s);
-
-    ASSERT_STRING("Hi World", s);
-
-}
-
 void replaceDigitsWithSpaces(char *s) {
     if (s == NULL || *s == '\0') {
         return;
@@ -99,6 +99,68 @@ void replaceDigitsWithSpaces(char *s) {
     s[resultIndex] = '\0';
 }
 
+void replace(char *source, char *w1, char *w2) {
+    size_t w1Size = strlen_(w1);
+    size_t w2Size = strlen_(w2);
+    WordDescriptor word1 = {w1, w1 + w1Size};
+    WordDescriptor word2 = {w2, w2 + w2Size};
+    char *readPtr, *recPtr;
+
+    if (w1Size >= w2Size) {
+        readPtr = source;
+        recPtr = source;
+    } else {
+        copyToBuffer(source);
+        readPtr = _stringBuffer;
+        recPtr = source;
+    }
+
+    while (*readPtr != '\0') {
+        if (find(readPtr, getEndOfString(readPtr), *w1) == readPtr) {
+            int match = 1;
+            for (int i = 0; i < w1Size; i++) {
+                if (*(readPtr + i) != *(word1.begin + i)) {
+                    match = 0;
+                    break;
+                }
+            }
+            if (match) {
+                copy(word2.begin, word2.end, recPtr);
+                readPtr += w1Size;
+                recPtr += w2Size;
+            } else {
+                *recPtr = *readPtr;
+                readPtr++;
+                recPtr++;
+            }
+        } else {
+            *recPtr = *readPtr;
+            readPtr++;
+            recPtr++;
+        }
+    }
+
+    *recPtr = '\0';
+
+    if (w1Size < w2Size) {
+        copyFromBuffer(source);
+    }
+}
+
+void test_removeNonLetters() {
+    char s[] = "Vt 23  1  ";
+    removeNonLetters(s);
+    ASSERT_STRING("Vt231", s);
+}
+
+void test_removeExtraSpaces() {
+    char s[] = "    Hi     World";
+    removeExtraSpaces(s);
+
+    ASSERT_STRING("Hi World", s);
+
+}
+
 void test_replaceDigitsWithSpaces() {
     char s[] = "Sm1ok2e5On5The6Water";
     replaceDigitsWithSpaces(s);
@@ -106,10 +168,20 @@ void test_replaceDigitsWithSpaces() {
     ASSERT_STRING("Sm ok e On The Water", s);
 }
 
+void test_replace() {
+    char s[] = "hello world";
+    char w1[] = "hello";
+    char w2[] = "hey";
+    replace(s, w1, w2);
+
+    ASSERT_STRING("hey world", s);
+}
+
 int main() {
     test_removeNonLetters();
     test_removeExtraSpaces();
     test_replaceDigitsWithSpaces();
+    test_replace();
 
     return 0;
 }
