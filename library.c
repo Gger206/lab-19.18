@@ -67,9 +67,49 @@ void test_removeExtraSpaces() {
 
 }
 
+void replaceDigitsWithSpaces(char *s) {
+    if (s == NULL || *s == '\0') {
+        return;
+    }
+
+    char result[MAX_STRING_SIZE];
+    int resultIndex = 0;
+
+
+    for (int i = 0; s[i] != '\0'; i++) {
+        if (isdigit(s[i])) {
+            int numSpaces = s[i] - '0';
+            for (int j = 0; j < numSpaces; j++) {
+                result[resultIndex] = ' ';
+                resultIndex++;
+            }
+        } else {
+            result[resultIndex] = s[i];
+            resultIndex++;
+        }
+    }
+
+    result[resultIndex] = '\0';
+
+    resultIndex = 0;
+    while (result[resultIndex] != '\0') {
+        s[resultIndex] = result[resultIndex];
+        resultIndex++;
+    }
+    s[resultIndex] = '\0';
+}
+
+void test_replaceDigitsWithSpaces() {
+    char s[] = "Sm1ok2e5On5The6Water";
+    replaceDigitsWithSpaces(s);
+
+    ASSERT_STRING("Sm ok e On The Water", s);
+}
+
 int main() {
     test_removeNonLetters();
     test_removeExtraSpaces();
+    test_replaceDigitsWithSpaces();
 
     return 0;
 }
