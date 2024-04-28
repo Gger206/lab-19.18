@@ -358,6 +358,21 @@ void interleaveStrings(char *s1, char *s2, char *result) {
     *resultPtr = '\0';
 }
 
+void reverseWords(char *s) {
+    BagOfWords bag;
+
+    getBagOfWords(&bag, s);
+
+    for (int i = bag.size - 1; i >= 0; i--) {
+        char *ptr = bag.words[i].begin;
+        while (ptr != bag.words[i].end) {
+            printf("%c", *ptr);
+            ptr++;
+        }
+        printf(" ");
+    }
+}
+
 void test_removeNonLetters() {
     char s[] = "Vt 23  1  ";
     removeNonLetters(s);
